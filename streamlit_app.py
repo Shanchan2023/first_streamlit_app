@@ -43,11 +43,18 @@ if prompt_type != "Custom Prompt" or run_custom:
     else:        
         prompt_text = custom_prompt + "The output in a json format: [{\"Company Name\": \"Company Name should be same company for the same statement\",\"Bank Account Number\": \"Bank Account Number\",\"Currency\": \"Currency\",\"Date\": \"Date (YYYY-MM-DD format\",\"Description\": \"Description\"\"Deposit\": \"Deposit / \"\"Withdrawal\": \"Withdrawal\"\"Balance\": \"Balance or Balance in original currrency\"}]"
 
+#def display_pdf_inline(file):
+#    base64_pdf = base64.b64encode(file.read()).decode("utf-8")
+#    pdf_viewer = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf"></iframe>'
+#    st.markdown(pdf_viewer, unsafe_allow_html=True)
+
 def display_pdf_inline(file):
     base64_pdf = base64.b64encode(file.read()).decode("utf-8")
-    pdf_viewer = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf"></iframe>'
-    st.markdown(pdf_viewer, unsafe_allow_html=True)
-
+    pdf_viewer = f'''
+        <embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf">
+    '''
+    st.components.v1.html(pdf_viewer, height=800)
+    
 uploaded_files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
 
 if uploaded_files:
