@@ -8,11 +8,12 @@ import base64
 tab1,  tab5 = st.tabs(["AI PDF Extractor", "Excel Ledger Decoder"])
 
 # 🔐 Set your API key
-with tab1:
-#st.set_page_config(page_title="📄 Mistral PDF Extractor", layout="wide")
-st.title("📄 Upload PDFs for AI-Powered Bank Statement Extraction")
 
-st.title("🔐 API Key Input")
+with tab1:
+    #st.set_page_config(page_title="📄 Mistral PDF Extractor", layout="wide")
+    st.title("📄 Upload PDFs for AI-Powered Bank Statement Extraction")
+    
+    st.title("🔐 API Key Input")
     
     # Input box for API key
     api_key = st.text_input("Enter your API key:", type="password")
