@@ -204,24 +204,41 @@ with tab5:
                 st.dataframe(result_df)
 
                 # Offer download
+                filtered_df = result_df[result_df["Account Type"] != "Bank - Other currency"]
+                
+                # Let user choose which Excel to download
+                option = st.selectbox(
+                    "Choose which Excel file to download:",
+                    ("Full decoded file", "Filtered (exclude Bank - Other currency)")
+                )
+                
+                # Pick the DataFrame based on selection
+                if option == "Full decoded file":
+                    df_to_download = result_df
+                    suffix = "FULL"
+                else:
+                    df_to_download = filtered_df
+                    suffix = "FILTERED"
+                
+                # Write to Excel in memory
                 output = io.BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    result_df.to_excel(writer, index=False, sheet_name='Decoded')
+                with pd.ExcelWriter(output, engine="openpyxl") as writer:
+                    df_to_download.to_excel(writer, index=False, sheet_name="Decoded")
+                
                 output.seek(0)
-
-                base_name = os.path.splitext(uploaded_file.name)[0]
                 
                 # Force .xlsx extension
-                file_name = f"DECODED_{base_name}.xlsx"
+                base_name = os.path.splitext(uploaded_file.name)[0]
+                file_name = f"DECODED_{base_name}_{suffix}.xlsx"
                 
+                # Download button
                 st.download_button(
-                    label="Download Decoded Excel File",
+                    label=f"Download {option}",
                     data=output,
                     file_name=file_name,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-                st.balloons()
 
         except Exception as e:
             st.error(f"Error: {e}")
