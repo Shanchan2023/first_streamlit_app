@@ -208,10 +208,15 @@ with tab5:
                     result_df.to_excel(writer, index=False, sheet_name='Decoded')
                 output.seek(0)
 
+                base_name = os.path.splitext(uploaded_file.name)[0]
+                
+                # Force .xlsx extension
+                file_name = f"DECODED_{base_name}.xlsx"
+                
                 st.download_button(
                     label="Download Decoded Excel File",
                     data=output,
-                    file_name=f"DECODED_{uploaded_file.name}",
+                    file_name=file_name,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
