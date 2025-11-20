@@ -157,15 +157,22 @@ with tab5:
             selected_sheet = st.selectbox("Select sheet", sheet_names)
 
             # Read the selected sheet
-            df = pd.read_excel(uploaded_file, sheet_name=selected_sheet, header=7)
-            # Copy value from A10 to B10
-            df.iloc[1, 1] = df.iloc[1, 0]   # row 10 → index 9; col B → index 1; col A → index 0
-            df = df.drop(index=0)
+            df = pd.read_excel(uploaded_file, sheet_name=selected_sheet, header=5)
+            df.columns = df.iloc[1]   # row index 1 → Excel row 2
+            df.columns = [
+                f"{col}_{i}" if dup else col
+                for i, (col, dup) in enumerate(zip(df.columns, df.columns.duplicated()))
+            ]         
+            df = df.drop(index=2)
+            df = df.drop(index=1)
             df = df.drop(columns=["Check"])
             # Reset index if needed
+            st.dataframe(df)
+            
             df = df.reset_index(drop=True)
             st.success(f"Loaded sheet **{selected_sheet}** with {len(df)} rows and {len(df.columns)} columns.")
             df.loc[df["Date"] == "Grand Total", "Description"] = "Grand Total"
+            df.loc[df["Date"] == "上年度帶下來", "Description"] = "上年度帶下來"
             # Auto-detect where the fixed columns end (usually column G = index 6)
             # We'll assume everything from column H onward contains account names in headers and amounts in cells
             fixed_cols_count = 7  # A to G → 7 columns
@@ -177,7 +184,10 @@ with tab5:
                 st.subheader("Preview of Original Data")
                 st.dataframe(df.head(10))
 
-                # Decode logic
+                # Assume df is already loaded from Excel
+                # Row 1 in Excel = index 0 in pandas
+                account_type_descriptions = df.iloc[0, fixed_cols_count:].tolist()
+
                 new_rows = []
                 fixed_column_names = df.columns[:fixed_cols_count]
 
@@ -186,25 +196,28 @@ with tab5:
 
                     # From column H onward
                     for col_idx in range(fixed_cols_count, len(row)):
-                        account_name = df.columns[col_idx]  # Header = account name
+                        account_name = df.columns[col_idx]              # Header = account name
+                        account_desc = account_type_descriptions[col_idx - fixed_cols_count]  # Row 1 value
                         amount = row.iloc[col_idx]
 
                         if pd.notna(amount) and str(amount).strip() != "":
                             amount = pd.to_numeric(amount, errors='coerce')
                             if amount is not None:  # safety
-                                new_rows.append(fixed_part + [account_name.strip(), amount])
+                                # Add description as extra column
+                                new_rows.append(fixed_part + [account_name.strip(), account_desc, amount])
 
                 # Create result DataFrame
                 result_df = pd.DataFrame(
                     new_rows,
-                    columns=list(fixed_column_names) + ["Account Type", "Value"]
+                    columns=list(fixed_column_names) + ["Account Type", "Account Type Description", "Value"]
                 )
 
                 st.subheader(f"Decoded Result – {len(result_df)} transaction lines")
                 st.dataframe(result_df)
 
+
                 # Offer download
-                filtered_df = result_df[result_df["Account Type"] != "Bank - Other currency"]
+                filtered_df = result_df[result_df["Account Type Description"] != "Bank - Other currency"]
                 
                 # Let user choose which Excel to download
                 option = st.selectbox(
