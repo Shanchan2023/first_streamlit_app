@@ -144,7 +144,7 @@ with tab5:
     """)
 
     # File uploader
-    uploaded_file = st.file_uploader("Choose your Excel file", type=["xlsx", "xls"])
+    uploaded_file = st.file_uploader("Choose your Excel file", type=["xlsx", "xls", "xlsm"])
 
     if uploaded_file is not None:
         try:
