@@ -211,7 +211,7 @@ with tab5:
                     new_rows,
                     columns=list(fixed_column_names) + ["Account Type", "Account Type Description", "Value"]
                 )
-
+                result_df = result_df[result_df["Value"].notna()]
                 st.subheader(f"Decoded Result – {len(result_df)} transaction lines")
                 st.dataframe(result_df)
 
