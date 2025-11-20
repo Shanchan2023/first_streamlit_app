@@ -7,6 +7,7 @@ from mistralai import Mistral
 import base64
 from openpyxl import Workbook
 import numpy as np
+import os
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font,PatternFill, Border, Side, Alignment
 from openpyxl.utils import get_column_letter, get_column_letter
